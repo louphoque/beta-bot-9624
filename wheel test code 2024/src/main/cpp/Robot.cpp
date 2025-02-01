@@ -40,6 +40,7 @@ class Robot : public frc::TimedRobot {
     // Drive with arcade style (50% reduction of the steering because it is very rapid)
     m_robotDrive.ArcadeDrive(-m_controller.GetLeftY(),
                              -0.5*m_controller.GetLeftX());
+    
   }
 
   void TestInit() override {}
@@ -57,9 +58,11 @@ class Robot : public frc::TimedRobot {
   //frc::DifferentialDrive m_robotDrive{
       //[&](double output) { m_left.Set(output); },
       //[&](double output) { m_right.Set(output); }};
+  
   frc::DifferentialDrive m_robotDrive{
       [&](double output) { CANVenom_left.Set(output); },
       [&](double output) { CANVenom_right.Set(output); }};
+      
   frc::XboxController m_controller{0};
   frc::Timer m_timer;
 };

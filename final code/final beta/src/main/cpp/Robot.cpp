@@ -52,8 +52,8 @@ class Robot : public frc::TimedRobot {
   //frc::PWMSparkMax m_right{1};
   //frc::PWMSparkMax m_left{0};
   //frc::PWMSparkMax m_right{1};
-  frc::CANVenom CANVenom_left{2};
-  frc::CANVenom CANVenom_right{1};
+  pwf::CANVenom CANVenom_left{2};
+  pwf::CANVenom CANVenom_right{1};
   //frc::DifferentialDrive m_robotDrive{
       //[&](double output) { m_left.Set(output); },
       //[&](double output) { m_right.Set(output); }};
