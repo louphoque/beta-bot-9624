@@ -12,6 +12,7 @@
 #include <cameraserver/CameraServer.h>
 
 //-------------------------------------------------------
+// Base du code
 class Robot : public frc::TimedRobot {
  public:
   Robot() {
@@ -23,7 +24,7 @@ class Robot : public frc::TimedRobot {
     
     //---------------------------------------------------
     // Selection du moteur qui doit être inverser pour
-    // assuer le bon controle du robot
+    // assurer le bon controle du robot
     CANVenom_right.SetInverted(true);
 
     //---------------------------------------------------
@@ -41,7 +42,6 @@ class Robot : public frc::TimedRobot {
 
     //--------------------------------------------------
     
-    
   }
 
 //----------------------------------------------------
@@ -53,7 +53,7 @@ class Robot : public frc::TimedRobot {
 
 //----------------------------------------------------
 // Utile pour le Teleop
-  void TeleopInit() override {} // Initialisation du code pour le Teleop
+  void TeleopInit() override {} // Initialisation du code pour le Teleop uniquement un seul fois
 
   void TeleopPeriodic() override { //  Une section de code pour lire les variables périodiquement
     
@@ -83,26 +83,35 @@ class Robot : public frc::TimedRobot {
 //--------------------------------------------------
 // Section des variable
  private:
-  //
+
+  //Définition des moteurs Venom
   pwf::CANVenom CANVenom_left{2};
   pwf::CANVenom CANVenom_right{1};
-  //frc::DifferentialDrive m_robotDrive{
-      //[&](double output) { m_left.Set(output); },
-      //[&](double output) { m_right.Set(output); }};
+  
+  //Définition de comment les moteurs doivent se comporter
   frc::DifferentialDrive m_robotDrive{
   CANVenom_left, CANVenom_right
   };
+
+  //Définition de quelle manette est utiliser par la variable m_controller
   frc::XboxController m_controller{0};
+
+  //Définition Timer
   frc::Timer m_timer;
+
+  //Définition de la fonction VisionThread qui est utiliser pour l'utilisation du camera sur le robot pour avoir un retour
   static void VisionThread() {
-      // Get the USB camera from CameraServer
+      
+      //Définis que la variable camera est maintenant utiliser
       cs::UsbCamera camera = frc::CameraServer::StartAutomaticCapture();
-      // Set the resolution
+
+      //Définis que la camera a une définition de 640x480
       camera.SetResolution(640, 480);
 
-      // Get a CvSink. This will capture Mats from the Camera
+      // Met en action un serveur cvSink et indique a la camera de capturer la vidéo
       cs::CvSink cvSink = frc::CameraServer::GetVideo();
-      // Setup a CvSource. This will send images back to the Dashboard
+
+      // Met en place le service de renvois de video au dashboard avec un rectangle dessiner
       cs::CvSource outputStream =
           frc::CameraServer::PutVideo("Rectangle", 640, 480);
 
@@ -110,25 +119,30 @@ class Robot : public frc::TimedRobot {
       cv::Mat mat;
 
       while (true) {
-        // Tell the CvSink to grab a frame from the camera and
-        // put it
-        // in the source mat.  If there is an error notify the
-        // output.
+        // si jamais il y a un probleme dans la capture de l'image
+        // depuis la camera, renvoie un code d'erreur
         if (cvSink.GrabFrame(mat) == 0) {
-          // Send the output the error.
+
+          // Envoie l'erreur dans les logs
           outputStream.NotifyError(cvSink.GetError());
-          // skip the rest of the current iteration
+
+          // Continue
           continue;
+
         }
-        // Put a rectangle on the image
+
+        // Place un rectangle dans la vidéo
         rectangle(mat, cv::Point(100, 100), cv::Point(400, 400),
                   cv::Scalar(255, 255, 255), 5);
-        // Give the output stream a new image to display
+
+        // Donne au dashboard une nouvelle image comme un nouveau calque
         outputStream.PutFrame(mat);
+
       }
     }
 };
 
+// Donne l'indiquation de partir le robot
 #ifndef RUNNING_FRC_TESTS
 int main() {
   return frc::StartRobot<Robot>();
