@@ -38,8 +38,8 @@ class Robot : public frc::TimedRobot {
 
   void TeleopPeriodic() override {
     // Drive with arcade style (50% reduction of the steering because it is very rapid)
-    m_robotDrive.ArcadeDrive(-m_controller.GetRightY(),
-                             -0.5*m_controller.GetRightX());
+    m_robotDrive.ArcadeDrive(-m_controller.GetLeftY(),
+                             -0.5*m_controller.GetLeftX());
   }
 
   void TestInit() override {}
@@ -50,8 +50,8 @@ class Robot : public frc::TimedRobot {
   // Robot drive system
   //frc::PWMSparkMax m_left{0};
   //frc::PWMSparkMax m_right{1};
-  //frc::PWMSparkMax m_left{0};
-  //frc::PWMSparkMax m_right{1};
+  frc::PWMSparkMax m_left{0};
+  frc::PWMSparkMax m_right{1};
   frc::CANVenom CANVenom_left{2};
   frc::CANVenom CANVenom_right{1};
   //frc::DifferentialDrive m_robotDrive{
