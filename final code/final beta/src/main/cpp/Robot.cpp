@@ -1,3 +1,5 @@
+//--------------------------------------------------------
+// Introduction des library
 #include <frc/TimedRobot.h>
 #include <frc/Timer.h>
 #include <frc/XboxController.h>
@@ -8,81 +10,80 @@
 #include <opencv2/core/types.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <cameraserver/CameraServer.h>
+
+//-------------------------------------------------------
 class Robot : public frc::TimedRobot {
  public:
   Robot() {
-    //wpi::SendableRegistry::AddChild(&m_robotDrive, &m_left);
-    //wpi::SendableRegistry::AddChild(&m_robotDrive, &m_right);
+
+    //---------------------------------------------------
+    // Intégrer les deux moteurs de controle au meme parent
     wpi::SendableRegistry::AddChild(&m_robotDrive, &CANVenom_left);
     wpi::SendableRegistry::AddChild(&m_robotDrive, &CANVenom_right);
-    // We need to invert one side of the drivetrain so that positive voltages
-    // result in both sides moving forward. Depending on how your robot's
-    // gearbox is constructed, you might have to invert the left side instead.
-    //m_right.SetInverted(true);
+    
+    //---------------------------------------------------
+    // Selection du moteur qui doit être inverser pour
+    // assuer le bon controle du robot
     CANVenom_right.SetInverted(true);
+
+    //---------------------------------------------------
+    // Sécuriter des moteurs
     m_robotDrive.SetExpiration(100_ms);
+
+    //---------------------------------------------------
+    // Start un timer (je pense)
     m_timer.Start();
+
+    //---------------------------------------------------
+    // Introduction du system pour la caméra
     std::thread visionThread(VisionThread);
     visionThread.detach();
+
+    //--------------------------------------------------
+    
+    
   }
 
-  double x;
-  double x_final;
-  double y;
-  double y_final;
-  double max_speed_tele;
-  int pov;
+//----------------------------------------------------
+// Utile pour des automatisations
+  void AutonomousInit() override { m_timer.Restart(); } // Initialisation du code pour un auto
 
-  void AutonomousInit() override { m_timer.Restart(); }
+  void AutonomousPeriodic() override {} //  Une section de code pour lire les variables périodiquement
+//----------------------------------------------------
 
-  void AutonomousPeriodic() override {}
+//----------------------------------------------------
+// Utile pour le Teleop
+  void TeleopInit() override {} // Initialisation du code pour le Teleop
 
-  void TeleopInit() override {}
+  void TeleopPeriodic() override { //  Une section de code pour lire les variables périodiquement
+    
+    // Défnition des variables de controle
+    int pr_speed = 0.4;
+    int pr_rotation = 0.5;
 
-  void TeleopPeriodic() override {
-    // Drive with arcade style (50% reduction of the steering because it is very rapid)
+    // Definition du code de controle
     double forward = m_controller.GetRightTriggerAxis();
     double backward = m_controller.GetLeftTriggerAxis();
     double turn = m_controller.GetLeftX();
 
+    // Définition de la variable speed pour avancer
     double speed = forward - backward;
 
-    m_robotDrive.ArcadeDrive(0.4*speed, 0.5*turn);
+    // Definition du code  pour l'action du robot ( avancer, reculer et touner)
+    m_robotDrive.ArcadeDrive(pr_speed*speed, pr_rotation*turn);
   }
 
+//---------------------------------------------------
+// Partie du code pour les test
   void TestInit() override {}
 
   void TestPeriodic() override {}
+//---------------------------------------------------
 
-  void maxSpeedTele()
-  {
-    pov = m_controller.GetPOV();
-
-    if (pov == 90 && max_speed_tele < 1)
-    {
-      max_speed_tele += 0.01;
-      
-    }
-    if (pov == 270 && max_speed_tele > 0.1)
-    {
-      max_speed_tele -= 0.01;
-    }
-  }
-
-// ----------------------------------------------------------------------------
-//
-
-
-// ----------------------------------------------------------------------------
-//
-
-
+//--------------------------------------------------
+// Section des variable
  private:
-  // Robot drive system
-  //frc::PWMSparkMax m_left{0};
-  //frc::PWMSparkMax m_right{1};
-  //frc::PWMSparkMax m_left{0};
-  //frc::PWMSparkMax m_right{1};
+  //
   pwf::CANVenom CANVenom_left{2};
   pwf::CANVenom CANVenom_right{1};
   //frc::DifferentialDrive m_robotDrive{
