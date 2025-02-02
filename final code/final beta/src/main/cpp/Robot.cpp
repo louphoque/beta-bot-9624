@@ -115,7 +115,7 @@ class Robot : public frc::TimedRobot {
       cs::CvSource outputStream =
           frc::CameraServer::PutVideo("Rectangle", 640, 480);
 
-      // Mats are very memory expensive. Lets reuse this Mat.
+      // Défini un claque statique pour un rectangle
       cv::Mat mat;
 
       while (true) {
