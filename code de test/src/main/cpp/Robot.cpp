@@ -1,3 +1,5 @@
+//--------------------------------------------------------
+// Introduction des library
 #include <frc/TimedRobot.h>
 #include <frc/Timer.h>
 #include <frc/XboxController.h>
@@ -8,126 +10,141 @@
 #include <opencv2/core/types.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <cameraserver/CameraServer.h>
+
+//-------------------------------------------------------
+// Base du code
 class Robot : public frc::TimedRobot {
  public:
   Robot() {
-    //wpi::SendableRegistry::AddChild(&m_robotDrive, &m_left);
-    //wpi::SendableRegistry::AddChild(&m_robotDrive, &m_right);
+
+    //---------------------------------------------------
+    // Intégrer les deux moteurs de controle au meme parent
     wpi::SendableRegistry::AddChild(&m_robotDrive, &CANVenom_left);
     wpi::SendableRegistry::AddChild(&m_robotDrive, &CANVenom_right);
-    // We need to invert one side of the drivetrain so that positive voltages
-    // result in both sides moving forward. Depending on how your robot's
-    // gearbox is constructed, you might have to invert the left side instead.
-    //m_right.SetInverted(true);
+    
+    //---------------------------------------------------
+    // Selection du moteur qui doit être inverser pour
+    // assurer le bon controle du robot
     CANVenom_right.SetInverted(true);
+
+    //---------------------------------------------------
+    // Sécuriter des moteurs
     m_robotDrive.SetExpiration(100_ms);
+
+    //---------------------------------------------------
+    // Start un timer (je pense)
     m_timer.Start();
+
+    /*
+    //---------------------------------------------------
+    // Introduction du system pour la caméra
     std::thread visionThread(VisionThread);
     visionThread.detach();
+    */
+    //--------------------------------------------------
+    
   }
 
-  double x;
-  double x_final;
-  double y;
-  double y_final;
-  double max_speed_tele;
-  int pov;
+//----------------------------------------------------
+// Utile pour des automatisations
+  void AutonomousInit() override { m_timer.Restart(); } // Initialisation du code pour un auto
 
-  void AutonomousInit() override { m_timer.Restart(); }
+  void AutonomousPeriodic() override {} //  Une section de code pour lire les variables périodiquement
+//----------------------------------------------------
 
-  void AutonomousPeriodic() override {}
+//----------------------------------------------------
+// Utile pour le Teleop
+  void TeleopInit() override {} // Initialisation du code pour le Teleop uniquement un seul fois
 
-  void TeleopInit() override {}
+  void TeleopPeriodic() override { //  Une section de code pour lire les variables périodiquement
+    
+    // Défnition des variables de controle
+    int pr_speed = 0.6;
+    int pr_rotation = 0.5;
 
-  void TeleopPeriodic() override {
-    // Drive with arcade style (50% reduction of the steering because it is very rapid)
+    // Definition du code de controle
     double forward = m_controller.GetRightTriggerAxis();
     double backward = m_controller.GetLeftTriggerAxis();
     double turn = m_controller.GetLeftX();
 
+    // Définition de la variable speed pour avancer
     double speed = forward - backward;
 
-    m_robotDrive.ArcadeDrive(0.4*speed, 0.5*turn);
+    // Definition du code  pour l'action du robot ( avancer, reculer et touner)
+    m_robotDrive.ArcadeDrive(pr_speed*speed, pr_rotation*turn);
   }
 
+//---------------------------------------------------
+// Partie du code pour les test
   void TestInit() override {}
 
   void TestPeriodic() override {}
+//---------------------------------------------------
 
-  void maxSpeedTele()
-  {
-    pov = m_controller.GetPOV();
-
-    if (pov == 90 && max_speed_tele < 1)
-    {
-      max_speed_tele += 0.01;
-      
-    }
-    if (pov == 270 && max_speed_tele > 0.1)
-    {
-      max_speed_tele -= 0.01;
-    }
-  }
-
-// ----------------------------------------------------------------------------
-//
-
-
-// ----------------------------------------------------------------------------
-//
-
-
+//--------------------------------------------------
+// Section des variable
  private:
-  // Robot drive system
-  //frc::PWMSparkMax m_left{0};
-  //frc::PWMSparkMax m_right{1};
-  //frc::PWMSparkMax m_left{0};
-  //frc::PWMSparkMax m_right{1};
-  pwf::CANVenom CANVenom_left{2};
-  pwf::CANVenom CANVenom_right{1};
-  //frc::DifferentialDrive m_robotDrive{
-      //[&](double output) { m_left.Set(output); },
-      //[&](double output) { m_right.Set(output); }};
+
+  //Définition des moteurs Venom
+  pwf::CANVenom CANVenom_left{1};
+  pwf::CANVenom CANVenom_right{2};
+  
+  //Définition de comment les moteurs doivent se comporter
   frc::DifferentialDrive m_robotDrive{
   CANVenom_left, CANVenom_right
   };
+
+  //Définition de quelle manette est utiliser par la variable m_controller
   frc::XboxController m_controller{0};
+
+  //Définition Timer
   frc::Timer m_timer;
+/*
+  //Définition de la fonction VisionThread qui est utiliser pour l'utilisation du camera sur le robot pour avoir un retour
   static void VisionThread() {
-      // Get the USB camera from CameraServer
+      
+      //Définis que la variable camera est maintenant utiliser
       cs::UsbCamera camera = frc::CameraServer::StartAutomaticCapture();
-      // Set the resolution
+
+      //Définis que la camera a une définition de 640x480
       camera.SetResolution(640, 480);
 
-      // Get a CvSink. This will capture Mats from the Camera
+      // Met en action un serveur cvSink et indique a la camera de capturer la vidéo
       cs::CvSink cvSink = frc::CameraServer::GetVideo();
-      // Setup a CvSource. This will send images back to the Dashboard
+
+      // Met en place le service de renvois de video au dashboard avec un rectangle dessiner
       cs::CvSource outputStream =
           frc::CameraServer::PutVideo("Rectangle", 640, 480);
 
-      // Mats are very memory expensive. Lets reuse this Mat.
+      // Défini un claque statique pour un rectangle
       cv::Mat mat;
 
       while (true) {
-        // Tell the CvSink to grab a frame from the camera and
-        // put it
-        // in the source mat.  If there is an error notify the
-        // output.
+        // si jamais il y a un probleme dans la capture de l'image
+        // depuis la camera, renvoie un code d'erreur
         if (cvSink.GrabFrame(mat) == 0) {
-          // Send the output the error.
+
+          // Envoie l'erreur dans les logs
           outputStream.NotifyError(cvSink.GetError());
-          // skip the rest of the current iteration
+
+          // Continue
           continue;
+
         }
-        // Put a rectangle on the image
+
+        // Place un rectangle dans la vidéo
         rectangle(mat, cv::Point(100, 100), cv::Point(400, 400),
                   cv::Scalar(255, 255, 255), 5);
-        // Give the output stream a new image to display
+
+        // Donne au dashboard une nouvelle image comme un nouveau calque
         outputStream.PutFrame(mat);
+
       }
     }
+    */
 };
 
+// Donne l'indiquation de partir le robot
 #ifndef RUNNING_FRC_TESTS
 int main() {
   return frc::StartRobot<Robot>();
