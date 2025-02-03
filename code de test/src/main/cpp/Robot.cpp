@@ -99,7 +99,7 @@ class Robot : public frc::TimedRobot {
 
   //Définition Timer
   frc::Timer m_timer;
-/*
+
   //Définition de la fonction VisionThread qui est utiliser pour l'utilisation du camera sur le robot pour avoir un retour
   static void VisionThread() {
       
@@ -141,7 +141,7 @@ class Robot : public frc::TimedRobot {
 
       }
     }
-    */
+    
 };
 
 // Donne l'indiquation de partir le robot
