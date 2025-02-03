@@ -10,6 +10,7 @@
 #include <opencv2/core/types.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <cameraserver/CameraServer.h>
+#include <frc/Servo.h>
 
 //-------------------------------------------------------
 // Base du code
@@ -59,7 +60,7 @@ class Robot : public frc::TimedRobot {
   void TeleopPeriodic() override { //  Une section de code pour lire les variables périodiquement
     
     // Défnition des variables de controle
-    int pr_speed = 0.6;
+    int pr_speed = 0.4;
     int pr_rotation = 0.5;
 
     // Definition du code de controle
@@ -72,6 +73,15 @@ class Robot : public frc::TimedRobot {
 
     // Definition du code  pour l'action du robot ( avancer, reculer et touner)
     m_robotDrive.ArcadeDrive(pr_speed*speed, pr_rotation*turn);
+
+    //Définition du code pour faire la rotion de la caméra si la vitesse du robot deviens négative
+    if (speed < 0)
+    {
+      servo_cam.Set(1);
+    } else {
+      servo_cam.Set(0);
+    }
+    
   }
 
 //---------------------------------------------------
@@ -88,6 +98,9 @@ class Robot : public frc::TimedRobot {
   //Définition des moteurs Venom
   pwf::CANVenom CANVenom_left{1};
   pwf::CANVenom CANVenom_right{2};
+
+  //Définition des servo moteurs
+  frc::Servo servo_cam{2};
   
   //Définition de comment les moteurs doivent se comporter
   frc::DifferentialDrive m_robotDrive{
