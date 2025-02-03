@@ -120,7 +120,13 @@ class Robot : public frc::TimedRobot {
       cs::UsbCamera camera = frc::CameraServer::StartAutomaticCapture();
 
       //Définis que la camera a une définition de 640x480
-      camera.SetResolution(640, 480);
+      camera.SetResolution(160, 120);
+
+      //Définis que la camera a une compressention de 
+      //camera.SetPixelFormat();
+
+      //Définis le nbre fps de la camera
+      camera.SetFPS(30);
 
       // Met en action un serveur cvSink et indique a la camera de capturer la vidéo
       cs::CvSink cvSink = frc::CameraServer::GetVideo();
