@@ -36,12 +36,12 @@ class Robot : public frc::TimedRobot {
     // Start un timer (je pense)
     m_timer.Start();
 
-    /*
+    
     //---------------------------------------------------
     // Introduction du system pour la caméra
     std::thread visionThread(VisionThread);
     visionThread.detach();
-    */
+    
     //--------------------------------------------------
     
   }
