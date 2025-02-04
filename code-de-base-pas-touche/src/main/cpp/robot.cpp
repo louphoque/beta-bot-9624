@@ -23,16 +23,7 @@ class Robot : public frc::TimedRobot {
 
   void AutonomousInit() override { m_timer.Restart(); }
 
-  void AutonomousPeriodic() override {
-    // Drive for 2 seconds
-    if (m_timer.Get() < 2_s) {
-      // Drive forwards half speed, make sure to turn input squaring off
-      m_robotDrive.ArcadeDrive(0.5, 0.0, false);
-    } else {
-      // Stop robot
-      m_robotDrive.ArcadeDrive(0.0, 0.0, false);
-    }
-  }
+  void AutonomousPeriodic() override {}
 
   void TeleopInit() override {}
 
