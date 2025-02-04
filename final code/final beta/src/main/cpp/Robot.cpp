@@ -11,6 +11,7 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <cameraserver/CameraServer.h>
 
+
 //-------------------------------------------------------
 // Base du code
 class Robot : public frc::TimedRobot {
@@ -85,8 +86,8 @@ class Robot : public frc::TimedRobot {
  private:
 
   //Définition des moteurs Venom
-  pwf::CANVenom CANVenom_left{2};
-  pwf::CANVenom CANVenom_right{1};
+  pwf::CANVenom CANVenom_left{1};
+  pwf::CANVenom CANVenom_right{2};
   
   //Définition de comment les moteurs doivent se comporter
   frc::DifferentialDrive m_robotDrive{

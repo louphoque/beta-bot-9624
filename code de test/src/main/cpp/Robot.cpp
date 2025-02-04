@@ -81,6 +81,19 @@ class Robot : public frc::TimedRobot {
     } else {
       servo_cam.Set(0);
     }
+
+    // Reglage vitesse
+    int pov;
+    pov = m_controller.GetPOV();
+
+    if (pov == 90 && pr_speed < 1)
+    {
+      pr_speed += 0.01;
+    }
+    if (pov == 270 && pr_speed > 0.1)
+    {
+      pr_speed -= 0.01;
+    }
     
   }
 
@@ -96,8 +109,8 @@ class Robot : public frc::TimedRobot {
  private:
 
   //Définition des moteurs Venom
-  pwf::CANVenom CANVenom_left{1};
-  pwf::CANVenom CANVenom_right{2};
+  pwf::CANVenom CANVenom_left{2};
+  pwf::CANVenom CANVenom_right{1};
 
   //Définition des servo moteurs
   frc::Servo servo_cam{2};
