@@ -60,8 +60,8 @@ class Robot : public frc::TimedRobot {
   void TeleopPeriodic() override { //  Une section de code pour lire les variables périodiquement
     
     // Défnition des variables de controle
-    int pr_speed = 0.4;
-    int pr_rotation = 0.5;
+    double pr_speed = 0.4;
+    double pr_rotation = 0.5;
 
     // Definition du code de controle
     double forward = m_controller.GetRightTriggerAxis();
@@ -77,13 +77,13 @@ class Robot : public frc::TimedRobot {
     //Définition du code pour faire la rotion de la caméra si la vitesse du robot deviens négative
     if (speed < 0)
     {
-      servo_cam.Set(1);
+      servo_cam.Set(0.70);
     } else {
-      servo_cam.Set(0);
+      servo_cam.Set(1);
     }
 
     // Reglage vitesse
-    int pov;
+    double pov;
     pov = m_controller.GetPOV();
 
     if (pov == 90 && pr_speed < 1)
@@ -113,7 +113,7 @@ class Robot : public frc::TimedRobot {
   pwf::CANVenom CANVenom_right{1};
 
   //Définition des servo moteurs
-  frc::Servo servo_cam{2};
+  frc::Servo servo_cam{1};
   
   //Définition de comment les moteurs doivent se comporter
   frc::DifferentialDrive m_robotDrive{
