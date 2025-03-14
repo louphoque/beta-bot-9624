@@ -77,9 +77,9 @@ class Robot : public frc::TimedRobot {
     //Définition du code pour faire la rotion de la caméra si la vitesse du robot deviens négative
     if (speed < 0)
     {
-      servo_cam.Set(0.70);
+      servo_cam.SetAngle(0);
     } else {
-      servo_cam.Set(1);
+      servo_cam.SetAngle(137);
     }
 
     // Reglage vitesse
@@ -89,6 +89,7 @@ class Robot : public frc::TimedRobot {
     if (pov == 90 && pr_speed < 1)
     {
       pr_speed += 0.01;
+      
     }
     if (pov == 270 && pr_speed > 0.1)
     {
